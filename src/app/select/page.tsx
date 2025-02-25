@@ -134,16 +134,30 @@ export default function SelectPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {movies.map((movie) => (
-          <div
-            key={movie.id}
-            onClick={() => toggleMovieSelection(movie.id)}
-            className={`cursor-pointer transition-transform transform ${
-              selectedMovies.includes(movie.id)
-                ? "ring-4 ring-blue-500 scale-105"
-                : "hover:scale-102"
-            }`}
-          >
-            <MovieCard movie={movie} />
+          <div key={movie.id} className="relative">
+            <div
+              className={`h-full ${
+                selectedMovies.includes(movie.id) ? "ring-2 ring-blue-500" : ""
+              }`}
+            >
+              <MovieCard movie={movie} />
+            </div>
+
+            {/* Checkbox overlay */}
+            <div className="absolute top-3 right-3">
+              <label className="inline-flex items-center">
+                <input
+                  type="checkbox"
+                  className="form-checkbox h-6 w-6 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  checked={selectedMovies.includes(movie.id)}
+                  onChange={() => toggleMovieSelection(movie.id)}
+                  disabled={
+                    !selectedMovies.includes(movie.id) &&
+                    selectedMovies.length >= config.selectionsPerUser
+                  }
+                />
+              </label>
+            </div>
           </div>
         ))}
       </div>
