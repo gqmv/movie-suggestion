@@ -22,23 +22,55 @@ export default function SelectPage() {
     }
 
     const parsedConfig = JSON.parse(configData);
-
+    console.log(
+      "LOADING - Retrieved configData from sessionStorage:",
+      parsedConfig
+    );
 
     if (
       !parsedConfig.userSelections ||
       !Array.isArray(parsedConfig.userSelections)
     ) {
       parsedConfig.userSelections = new Array(parsedConfig.numUsers).fill(null);
+      console.log(
+        "LOADING - Initialized empty userSelections:",
+        parsedConfig.userSelections
+      );
     }
+
+    // Check if any selections have already been made for the current user
+    const existingSelections =
+      parsedConfig.userSelections[parsedConfig.currentUserIndex];
+    console.log(
+      "LOADING - Existing selections for current user:",
+      existingSelections
+    );
 
     setConfig(parsedConfig);
     setCurrentUser(parsedConfig.currentUserIndex);
+    console.log(
+      "LOADING - Current user set to:",
+      parsedConfig.currentUserIndex
+    );
 
     const fetchMovies = async () => {
       setLoading(true);
       try {
         const response = await getRandomMovies(parsedConfig.moviesPerUser);
+        console.log("LOADING - Fetched movies:", response.results);
         setMovies(response.results);
+
+        // After loading movies, set the selected movies if there are existing selections
+        if (
+          existingSelections &&
+          Array.isArray(existingSelections) &&
+          existingSelections.length > 0
+        ) {
+          // If selections exist, set them in state
+          const existingIds = existingSelections.map((movie) => movie.id);
+          console.log("LOADING - Setting existing selection IDs:", existingIds);
+          setSelectedMovies(existingIds);
+        }
       } catch (error) {
         console.error("Error fetching movies:", error);
       } finally {
@@ -62,35 +94,85 @@ export default function SelectPage() {
   const handleNext = () => {
     if (!config) return;
 
-    // Store this user's selections
-    const userSelections = [...config.userSelections];
+    console.log(
+      "BEFORE STORING - Current selectedMovies (IDs):",
+      selectedMovies
+    );
+    console.log("BEFORE STORING - Current movies state:", movies);
+
+    // Get the CURRENT userSelections directly from sessionStorage to ensure we have the latest
+    const configData = sessionStorage.getItem("configData");
+    const currentConfigData = configData ? JSON.parse(configData) : config;
+
+    // Create a copy of the userSelections array - using the most up-to-date version
+    const userSelections =
+      currentConfigData.userSelections &&
+      Array.isArray(currentConfigData.userSelections)
+        ? [...currentConfigData.userSelections]
+        : new Array(config.numUsers).fill(null);
+
+    console.log(
+      "BEFORE STORING - Previous userSelections from sessionStorage:",
+      JSON.stringify(userSelections)
+    );
+
     // Make sure we're working with an array of the right size
-    if (
-      !Array.isArray(userSelections) ||
-      userSelections.length < config.numUsers
-    ) {
+    if (userSelections.length < config.numUsers) {
+      // Initialize with null values for all users
       userSelections.length = config.numUsers;
     }
 
+    // Ensure all elements are initialized
+    for (let i = 0; i < userSelections.length; i++) {
+      if (!userSelections[i]) userSelections[i] = null;
+    }
+
     // Store the selected movies as actual movie objects (not just IDs)
-    userSelections[currentUser] = movies.filter((movie) =>
+    const selectedMovieObjects = movies.filter((movie) =>
       selectedMovies.includes(movie.id)
+    );
+
+    // Store this user's selections at their index
+    userSelections[currentUser] = selectedMovieObjects;
+
+    console.log(
+      "STORING - Selected movie objects for current user:",
+      JSON.stringify(selectedMovieObjects)
+    );
+    console.log(
+      "AFTER STORING - Updated userSelections:",
+      JSON.stringify(userSelections)
     );
 
     // Update the config in sessionStorage
     const updatedConfig = {
-      ...config,
-      userSelections,
+      ...currentConfigData,
+      userSelections: userSelections,
       currentUserIndex: currentUser + 1,
     };
 
     // Log to verify what we're storing
-    console.log("Storing user selections:", userSelections);
+    console.log("User " + (currentUser + 1) + " completed selections.");
+    console.log(
+      "Current user index:",
+      currentUser,
+      "Next user index:",
+      currentUser + 1
+    );
 
+    // Store the updated config to sessionStorage
     sessionStorage.setItem("configData", JSON.stringify(updatedConfig));
+    console.log(
+      "STORED IN SESSION - configData:",
+      JSON.stringify(updatedConfig)
+    );
 
     // If all users have made selections, go to results page
     if (currentUser + 1 >= config.numUsers) {
+      console.log(
+        "All users have completed selections. Final userSelections:",
+        JSON.stringify(userSelections)
+      );
       router.push("/processing");
     } else {
       // Reset for next user
@@ -103,6 +185,7 @@ export default function SelectPage() {
         try {
           const response = await getRandomMovies(config.moviesPerUser);
           setMovies(response.results);
+          console.log("New movies fetched for next user:", response.results);
         } catch (error) {
           console.error("Error fetching movies:", error);
         } finally {
