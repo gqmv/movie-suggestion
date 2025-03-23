@@ -84,14 +84,14 @@ export default function ProcessingPage() {
 
   if (error) {
     return (
-      <div className="container mx-auto p-8 flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-3xl font-bold mb-8 text-center text-red-600">
+      <div>
+        <h1>
           Something went wrong
         </h1>
-        <p className="mb-8 text-center">{error}</p>
+        <p>{error}</p>
         <button
           onClick={() => router.push("/")}
-          className="px-6 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+          className='button'
         >
           Start Over
         </button>
@@ -100,12 +100,12 @@ export default function ProcessingPage() {
   }
 
   return (
-    <div className="container mx-auto p-8 flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-3xl font-bold mb-8 text-center">
+    <div>
+      <h1>
         Processing Recommendations
       </h1>
-      <div className="w-16 h-16 border-t-4 border-blue-500 border-solid rounded-full animate-spin"></div>
-      <p className="mt-8 text-gray-600">
+      <div></div>
+      <p>
         Using AI to find the perfect movies for your group...
       </p>
     </div>

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import './app.css';
 
 export default function Home() {
   const [numUsers, setNumUsers] = useState(1);
@@ -24,47 +25,44 @@ export default function Home() {
   };
 
   return (
-    <main className="container mx-auto px-4 py-8 max-w-md">
-      <h1 className="text-3xl font-bold mb-8 text-center">Movie Recommendation System</h1>
+    <main>
+      <h1>Cine Match</h1>
       
-      <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6">
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Number of Users
+      <form onSubmit={handleSubmit} >
+        <div>
+          <label>
+            Number of Users To Choose
           </label>
           <input
             type="number"
             min="1"
             max="5"
-            className="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             value={numUsers}
             onChange={(e) => setNumUsers(parseInt(e.target.value))}
           />
         </div>
         
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+        <div>
+          <label>
             Movies to Show Each User
           </label>
           <input
             type="number"
             min="5"
-            max="20"
-            className="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            max="20" 
             value={moviesPerUser}
             onChange={(e) => setMoviesPerUser(parseInt(e.target.value))}
           />
         </div>
         
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+        <div >
+          <label>
             Movies Each User Can Select
           </label>
           <input
             type="number"
             min="1"
             max="10"
-            className="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             value={selectionsPerUser}
             onChange={(e) => setSelectionsPerUser(parseInt(e.target.value))}
           />
@@ -72,7 +70,7 @@ export default function Home() {
         
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+          className='button'
         >
           Start
         </button>

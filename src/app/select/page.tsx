@@ -23,7 +23,7 @@ export default function SelectPage() {
 
     const parsedConfig = JSON.parse(configData);
 
-    // Initialize userSelections as an array with the correct length if it doesn't exist
+
     if (
       !parsedConfig.userSelections ||
       !Array.isArray(parsedConfig.userSelections)
@@ -34,7 +34,6 @@ export default function SelectPage() {
     setConfig(parsedConfig);
     setCurrentUser(parsedConfig.currentUserIndex);
 
-    // Fetch random movies for the user
     const fetchMovies = async () => {
       setLoading(true);
       try {
@@ -116,61 +115,37 @@ export default function SelectPage() {
 
   if (loading || !config) {
     return (
-      <div className="container mx-auto p-8 text-center">
-        <h1 className="text-2xl mb-8">Loading...</h1>
+      <div>
+        <h1>Loading...</h1>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-2 text-center">
+    <div>
+      <h1>
         User {currentUser + 1} Preferences
       </h1>
-      <p className="text-center mb-8">
+      <p>
         Select {config.selectionsPerUser} movies you enjoy (
         {selectedMovies.length}/{config.selectionsPerUser})
       </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {movies.map((movie) => (
-          <div key={movie.id} className="relative">
-            <div
-              className={`h-full ${
-                selectedMovies.includes(movie.id) ? "ring-2 ring-blue-500" : ""
-              }`}
-            >
-              <MovieCard movie={movie} />
-            </div>
+      <div>
+      {movies.map((movie) => (
+        <div
+            key={movie.id}
+            onClick={() => toggleMovieSelection(movie.id)}>
+            <MovieCard movie={movie} isSelected={selectedMovies.includes(movie.id)} />
+        </div>
+      ))}
+  </div>
 
-            {/* Checkbox overlay */}
-            <div className="absolute top-3 right-3">
-              <label className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  className="form-checkbox h-6 w-6 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                  checked={selectedMovies.includes(movie.id)}
-                  onChange={() => toggleMovieSelection(movie.id)}
-                  disabled={
-                    !selectedMovies.includes(movie.id) &&
-                    selectedMovies.length >= config.selectionsPerUser
-                  }
-                />
-              </label>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-8 text-center">
+      <div>
         <button
           onClick={handleNext}
           disabled={selectedMovies.length !== config.selectionsPerUser}
-          className={`px-6 py-3 rounded-lg text-white font-medium ${
-            selectedMovies.length === config.selectionsPerUser
-              ? "bg-blue-600 hover:bg-blue-700"
-              : "bg-gray-400 cursor-not-allowed"
-          }`}
+          className='button'
         >
           {currentUser + 1 >= config.numUsers
             ? "Get Recommendations"

@@ -38,18 +38,16 @@ const GenreSelector = ({
     <div className="mb-6">
       <label
         htmlFor="genre-select"
-        className="block text-sm font-medium text-gray-700 mb-2"
       >
         Filter by Genre
       </label>
-      <div className="relative">
+      <div >
         <select
           id="genre-select"
           value={selectedGenreId || ""}
           onChange={(e) =>
             onGenreSelect(e.target.value ? Number(e.target.value) : null)
           }
-          className="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
         >
           <option value="">All Genres</option>
           {genres.map((genre) => (

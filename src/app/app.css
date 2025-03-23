@@ -1,0 +1,64 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  text-align: center; /* Centraliza todo o texto */
+  background-color: #1e1e2f; /* Tom escuro para o fundo */
+  color: #ffffff; /* Cor de texto clara para contraste */
+}
+
+.button {
+    background-color: #4f46e5; /* Azul Indigo */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .button:hover {
+    background-color: #4338ca; /* Azul Indigo mais escuro */
+    transform: translateY(-2px);
+  }
+
+  form {
+    background-color: #2a2a3d;
+    width: 80%;
+    margin-left: 10%;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    text-align: left;
+  }
+  
+  label {
+    color: #d1d1e0; /* Cinza claro */
+  }
+  
+  input[type="number"] {
+    width: 90%;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #44445a;
+    background-color: #1e1e2f;
+    color: #ffffff;
+    margin-bottom: 12px;
+    transition: border 0.3s, box-shadow 0.3s;
+  }
+  
+  input[type="number"]:focus {
+    border-color: #3f51b5;
+    box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.5);
+    outline: none;
+  }
+  
+  h1 {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #ffffff;
+  }

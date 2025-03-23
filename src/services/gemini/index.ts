@@ -7,7 +7,7 @@ let model: ChatGoogleGenerativeAI;
 try {
   model = new ChatGoogleGenerativeAI({
     apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY || "",
-    modelName: "gemini-pro",
+    modelName: "gemini-2.0-flash",
   });
 } catch (error) {
   console.error("Error initializing Gemini model:", error);
