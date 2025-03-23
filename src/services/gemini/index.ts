@@ -1,3 +1,4 @@
+import { getMoviesByGenre, getPopularMovies } from "@/services/api/movies";
 import { Movie } from "@/types/movie";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
@@ -50,20 +51,103 @@ export const getRecommendations = async (
       throw new Error("No movies found in user selections");
     }
 
+    // Extract genres from user selections to fetch similar movies
+    const selectedGenres = new Set<number>();
+    allSelectedMovies.forEach((movie) => {
+      if (movie.genre_ids && Array.isArray(movie.genre_ids)) {
+        movie.genre_ids.forEach((genreId) => selectedGenres.add(genreId));
+      }
+    });
+
+    console.log(
+      "Extracted genres from user selections:",
+      Array.from(selectedGenres)
+    );
+
+    // Fetch additional movies to provide more options to Gemini
+    let additionalMovies: Movie[] = [];
+
+    // Get popular movies
+    try {
+      const popularMoviesResponse = await getPopularMovies(1);
+      additionalMovies = [
+        ...additionalMovies,
+        ...popularMoviesResponse.results,
+      ];
+      console.log(
+        `Added ${popularMoviesResponse.results.length} popular movies`
+      );
+    } catch (error) {
+      console.error("Error fetching popular movies:", error);
+    }
+
+    // Get movies by genre for top 3 genres (if available)
+    const topGenres = Array.from(selectedGenres).slice(0, 3);
+    for (const genreId of topGenres) {
+      try {
+        const genreMoviesResponse = await getMoviesByGenre(genreId, 1);
+        additionalMovies = [
+          ...additionalMovies,
+          ...genreMoviesResponse.results,
+        ];
+        console.log(
+          `Added ${genreMoviesResponse.results.length} movies from genre ${genreId}`
+        );
+      } catch (error) {
+        console.error(`Error fetching movies for genre ${genreId}:`, error);
+      }
+    }
+
+    // Remove duplicates from additional movies (by ID)
+    const uniqueAdditionalMovies = Array.from(
+      new Map(additionalMovies.map((movie) => [movie.id, movie])).values()
+    );
+
+    // Remove movies that are already in user selections
+    const selectedMovieIds = new Set(
+      allSelectedMovies.map((movie) => movie.id)
+    );
+    const filteredAdditionalMovies = uniqueAdditionalMovies.filter(
+      (movie) => !selectedMovieIds.has(movie.id)
+    );
+
+    console.log(
+      `Added ${filteredAdditionalMovies.length} unique additional movies`
+    );
+
+    // Combine user-selected movies with additional movies
+    const allAvailableMovies = [
+      ...allSelectedMovies,
+      ...filteredAdditionalMovies,
+    ];
+
     // Structure the prompt for Gemini
     const systemMessage = new SystemMessage(
       `You are a movie recommendation expert. Based on the movie preferences of multiple users, 
       recommend 5 movies that the entire group would enjoy watching together. 
       Focus on finding common themes, genres, or styles across their preferences.
-      Return only the exact JSON array of movie objects from the provided selections that you recommend.`
+      I will provide you with two sets of movies:
+      1. Movies that users have specifically selected as their preferences
+      2. Additional popular and genre-related movies that might match the group's taste
+      3. Dont use the movies that are already in the user-selected movies
+      
+      Consider both sets, but prioritize recommendations that align well with user preferences.
+      Return only the exact JSON array of 5 movie objects that you recommend.`
     );
 
     const humanMessage = new HumanMessage(
       `Here are the movie preferences for each user in a group:\n\n${userPreferences.join(
         "\n"
-      )}\n\nBased on these preferences, recommend 5 movies from the following list that would be good for the entire group to watch together:\n\n${JSON.stringify(
-        allSelectedMovies
-      )}\n\nReply with ONLY a JSON array of the 5 movie objects you recommend.`
+      )}\n\n
+      Based on these preferences, recommend 5 movies that would be good for the entire group to watch together.
+      
+      USER-SELECTED MOVIES (prioritize these as they represent confirmed preferences):
+      ${JSON.stringify(allSelectedMovies)}
+      
+      ADDITIONAL MOVIE OPTIONS (consider these as well for more diverse recommendations):
+      ${JSON.stringify(filteredAdditionalMovies.slice(0, 30))}
+      
+      Reply with ONLY a JSON array of the 5 movie objects you recommend.`
     );
 
     console.log("Sending prompt to Gemini");
@@ -91,14 +175,14 @@ export const getRecommendations = async (
         }
       } else {
         console.log("No JSON array found, trying to extract movie titles");
-        // If no JSON array found, try to extract movie titles and find them in the selected movies
+        // If no JSON array found, try to extract movie titles and find them in all available movies
         const titles = responseText.match(/["']([^"']+)["']/g);
         if (titles) {
           console.log("Found titles:", titles);
           const titleSet = new Set(
             titles.map((t) => t.replace(/["']/g, "").toLowerCase())
           );
-          recommendations = allSelectedMovies
+          recommendations = allAvailableMovies
             .filter((movie) => titleSet.has(movie.title.toLowerCase()))
             .slice(0, 5);
           console.log("Recommendations from titles:", recommendations);
