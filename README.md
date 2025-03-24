@@ -1,7 +1,7 @@
 # Cine Match
 
 **Cine Match** é uma aplicação desenvolvida como projeto final da disciplina  
-**"Tópicos Avançados em SI 3 - Transformação Digital com IA: Utilizando Modelos de Linguagem no Ambiente de Negócios"**.
+**"Tópicos Avançados em SI 3 - Transformação Digital com IA: Utilizando Modelos de Linguagem no Ambiente de Negócios"**, disciplina oferecida pelo Centro de Informática (CIn) da Universidade Federal de Pernambuco (UFPE), ministrada pelo professor **Vinicius Cardoso Garcia**.
 
 O objetivo do projeto é facilitar a escolha de filmes entre grupos de pessoas por meio de um agente de IA generativa. Através de uma interface simples, os usuários indicam suas preferências, e o sistema recomenda automaticamente os filmes mais compatíveis para todos os envolvidos, utilizando o modelo **Gemini 2.0 Flash (Google Generative AI)**.
 
@@ -47,6 +47,15 @@ yarn dev  # ou npm run dev
 
 ## 📎 Documentação
 
-Esta é a versão oficial da documentação do Cine Match.  
-Disponível também via Google Docs:  
-👉 [Documentação Oficial - Google Docs](https://docs.google.com/document/d/1uS2Uky2c9RwAglfzjB7Sz99zHkBR0uFvVk9cy6rdE38/edit?usp=sharing)
+Esta é a versão oficial da documentação do Cine Match, disponível via Google Docs:  
+👉 [Cine Match - Documentação Oficial](https://docs.google.com/document/d/1uS2Uky2c9RwAglfzjB7Sz99zHkBR0uFvVk9cy6rdE38/edit?usp=sharing)
+
+## 👨‍💻 Equipe Responsável
+
+Este projeto foi desenvolvido por:
+
+- **Breno Santos** - `baas@cin.ufpe.br`
+- **Gabriel Vieira** - `gqmv@cin.ufpe.br`
+- **Ian Braga** - `igbt@cin.ufpe.br`
+- **Luiz Schmalz** - `lefvs@cin.ufpe.br`
+- **Philippe Menge** - `pmal@cin.ufpe.br`
