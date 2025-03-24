@@ -1,36 +1,32 @@
 import { Movie } from "@/types/movie";
-import MovieCard from "./MovieCard";
 import "./MovieList.css";
 
-interface MovieListProps {
-  movies: Movie[];
-  isLoading: boolean;
+interface MovieCardProps {
+  movie: Movie;
+  isSelected: boolean;
 }
 
-const MovieList = ({ movies, isLoading }: MovieListProps) => {
-  if (isLoading) {
-    return (
-      <div className="loading-container">
-        <p className="loading-text">Loading movies...</p>
-      </div>
-    );
-  }
-
-  if (movies.length === 0) {
-    return (
-      <div className="empty-container">
-        <p className="empty-text">No movies found</p>
-      </div>
-    );
-  }
+const MovieCard = ({ movie, isSelected }: MovieCardProps) => {
+  const imageUrl = movie.poster_path
+    ? `https://image.tmdb.org/t/p/w500/${movie.poster_path}`
+    : "/default-movie.png";
 
   return (
-    <div className="card-grid">
-      {movies.map((movie) => (
-        <MovieCard key={movie.id} movie={movie} />
-      ))}
+    <div
+      className="movie-card"
+      style={{ backgroundColor: isSelected ? "lightgreen" : "#fff" }}
+    >
+      <img src={imageUrl} alt={movie.title} className="movie-image" />
+      <div className="movie-details">
+        <h3 className="movie-title">{movie.title}</h3>
+        <div className="movie-info">
+          <span>{movie.release_date?.split("-")[0] || "Unknown"}</span>
+          <span className="movie-rating">⭐ {movie.vote_average.toFixed(1)}</span>
+        </div>
+        <p className="movie-overview">{movie.overview}</p>
+      </div>
     </div>
   );
 };
 
-export default MovieList;
+export default MovieCard;

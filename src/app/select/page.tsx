@@ -1,5 +1,6 @@
 "use client";
 import MovieCard from "@/components/MovieCard";
+import MoodSelector from "@/components/MoodSelector";
 import { getRandomMovies } from "@/services/api/movies";
 import { Movie } from "@/types/movie";
 import { useRouter } from "next/navigation";
@@ -11,6 +12,7 @@ export default function SelectPage() {
   const [loading, setLoading] = useState(true);
   const [config, setConfig] = useState<any>(null);
   const [currentUser, setCurrentUser] = useState(0);
+  const [selectedMood, setSelectedMood] = useState(""); // New mood state
   const router = useRouter();
 
   useEffect(() => {
@@ -60,16 +62,18 @@ export default function SelectPage() {
         console.log("LOADING - Fetched movies:", response.results);
         setMovies(response.results);
 
-        // After loading movies, set the selected movies if there are existing selections
+        // After loading movies, set the selected movies and mood if there are existing selections
         if (
           existingSelections &&
-          Array.isArray(existingSelections) &&
-          existingSelections.length > 0
+          Array.isArray(existingSelections.movies) &&
+          existingSelections.movies.length > 0
         ) {
-          // If selections exist, set them in state
-          const existingIds = existingSelections.map((movie) => movie.id);
+          const existingIds = existingSelections.movies.map((movie: Movie) => movie.id);
           console.log("LOADING - Setting existing selection IDs:", existingIds);
           setSelectedMovies(existingIds);
+          if (existingSelections.mood) {
+            setSelectedMood(existingSelections.mood);
+          }
         }
       } catch (error) {
         console.error("Error fetching movies:", error);
@@ -104,10 +108,10 @@ export default function SelectPage() {
     const configData = sessionStorage.getItem("configData");
     const currentConfigData = configData ? JSON.parse(configData) : config;
 
-    // Create a copy of the userSelections array - using the most up-to-date version
+    // Create a copy of the userSelections array using the latest data
     const userSelections =
       currentConfigData.userSelections &&
-      Array.isArray(currentConfigData.userSelections)
+        Array.isArray(currentConfigData.userSelections)
         ? [...currentConfigData.userSelections]
         : new Array(config.numUsers).fill(null);
 
@@ -118,11 +122,10 @@ export default function SelectPage() {
 
     // Make sure we're working with an array of the right size
     if (userSelections.length < config.numUsers) {
-      // Initialize with null values for all users
       userSelections.length = config.numUsers;
     }
 
-    // Ensure all elements are initialized
+    // Initialize any empty selections as null
     for (let i = 0; i < userSelections.length; i++) {
       if (!userSelections[i]) userSelections[i] = null;
     }
@@ -132,12 +135,17 @@ export default function SelectPage() {
       selectedMovies.includes(movie.id)
     );
 
-    // Store this user's selections at their index
-    userSelections[currentUser] = selectedMovieObjects;
+    // Store both movies and mood for the current user
+    const userSelection = {
+      movies: selectedMovieObjects,
+      mood: selectedMood,
+    };
+
+    userSelections[currentUser] = userSelection;
 
     console.log(
-      "STORING - Selected movie objects for current user:",
-      JSON.stringify(selectedMovieObjects)
+      "STORING - Selected movie objects and mood for current user:",
+      JSON.stringify(userSelection)
     );
     console.log(
       "AFTER STORING - Updated userSelections:",
@@ -151,7 +159,6 @@ export default function SelectPage() {
       currentUserIndex: currentUser + 1,
     };
 
-    // Log to verify what we're storing
     console.log("User " + (currentUser + 1) + " completed selections.");
     console.log(
       "Current user index:",
@@ -160,14 +167,13 @@ export default function SelectPage() {
       currentUser + 1
     );
 
-    // Store the updated config to sessionStorage
     sessionStorage.setItem("configData", JSON.stringify(updatedConfig));
     console.log(
       "STORED IN SESSION - configData:",
       JSON.stringify(updatedConfig)
     );
 
-    // If all users have made selections, go to results page
+    // If all users have made selections, go to results page; otherwise, prepare for the next user
     if (currentUser + 1 >= config.numUsers) {
       console.log(
         "All users have completed selections. Final userSelections:",
@@ -175,12 +181,11 @@ export default function SelectPage() {
       );
       router.push("/processing");
     } else {
-      // Reset for next user
       setCurrentUser(currentUser + 1);
       setSelectedMovies([]);
+      setSelectedMood(""); // Reset mood for the next user
       setLoading(true);
 
-      // Fetch new movies for next user
       const fetchMovies = async () => {
         try {
           const response = await getRandomMovies(config.moviesPerUser);
@@ -206,33 +211,30 @@ export default function SelectPage() {
 
   return (
     <div>
-      <h1>
-        User {currentUser + 1} Preferences
-      </h1>
+      <h1>User {currentUser + 1} Preferences</h1>
       <p>
         Select {config.selectionsPerUser} movies you enjoy (
         {selectedMovies.length}/{config.selectionsPerUser})
       </p>
 
+      {/* Insert the Mood Selector here */}
+      <MoodSelector onMoodSelect={setSelectedMood} selectedMood={selectedMood} />
+
       <div>
-      {movies.map((movie) => (
-        <div
-            key={movie.id}
-            onClick={() => toggleMovieSelection(movie.id)}>
+        {movies.map((movie) => (
+          <div key={movie.id} onClick={() => toggleMovieSelection(movie.id)}>
             <MovieCard movie={movie} isSelected={selectedMovies.includes(movie.id)} />
-        </div>
-      ))}
-  </div>
+          </div>
+        ))}
+      </div>
 
       <div>
         <button
           onClick={handleNext}
-          disabled={selectedMovies.length !== config.selectionsPerUser}
-          className='button'
+          disabled={selectedMovies.length !== config.selectionsPerUser || !selectedMood}
+          className="button"
         >
-          {currentUser + 1 >= config.numUsers
-            ? "Get Recommendations"
-            : "Next User"}
+          {currentUser + 1 >= config.numUsers ? "Get Recommendations" : "Next User"}
         </button>
       </div>
     </div>
