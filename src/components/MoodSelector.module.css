@@ -1,0 +1,30 @@
+.moodSelectorContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Centers children horizontally */
+    margin: 1rem 0;
+}
+
+.moodLabel {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #d1d1e0;
+}
+
+.moodSelect {
+    width: 200px;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #44445a;
+    background-color: #1e1e2f;
+    color: #ffffff;
+    font-size: 1rem;
+    outline: none;
+    transition: border 0.3s, box-shadow 0.3s;
+}
+
+.moodSelect:focus {
+    border-color: #3f51b5;
+    box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.5);
+}
